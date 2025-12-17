@@ -52,6 +52,9 @@ const db = mysql.createConnection({
 
 const promiseConn = db.promise();
 
+app.get("/", (req, res) => {
+    res.json("tes")
+})
 
 app.post('/register', async (req, res) => {
     const { nama, username, password } = req.body;
