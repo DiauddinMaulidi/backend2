@@ -815,7 +815,7 @@ app.get("/penduduk_tembeng/gallery", (req, res) => {
     db.query("SELECT * FROM gallery", (err, results) => {
         if (err) return res.status(500).json({ error: err });
 
-        const baseUrl = "http://localhost:5000/assets/";
+        const baseUrl = `https://backend2-sooty-xi.vercel.app/assets/`;
 
         const formatted = results.map(item => ({
             ...item,
@@ -835,7 +835,7 @@ app.post("/penduduk_tembeng/gallery", upload.single("image"), (req, res) => {
 
         res.json({
             message: "berhasil menyimpan",
-            imageUrl: "http://localhost:5000/assets/" + filename
+            imageUrl: `https://backend2-sooty-xi.vercel.app/assets/` + filename
         })
     })
 })
