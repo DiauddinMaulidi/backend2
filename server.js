@@ -630,7 +630,7 @@ app.post("/berita", upload.single("image"), (req, res) => {
 
             res.json({
                 message: "Berita berhasil ditambahkan",
-                imageUrl: "http://localhost:5000/assets/" + filename
+                imageUrl: `https://backend2-sooty-xi.vercel.app//assets/` + filename
             });
         }
     );
