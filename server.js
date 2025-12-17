@@ -16,7 +16,10 @@ dotenv.config()
 const app = express();
 const saltRounds = 10;
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 // app.use("/", authRoutes);
@@ -602,7 +605,7 @@ app.get("/berita", (req, res) => {
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err });
 
-        const baseUrl = "http://localhost:5000/assets/";
+        const baseUrl = "https://backend2-sooty-xi.vercel.app/assets/";
 
         const formatted = results.map(item => ({
             ...item,
