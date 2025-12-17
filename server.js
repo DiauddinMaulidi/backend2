@@ -46,7 +46,7 @@ const db = mysql.createConnection({
     host: "sql12.freesqldatabase.com",
     user: "sql12812219",
     password: "4LcmJ9iTSF",
-    database: "	sql12812219",
+    database: "sql12812219",
     dateStrings: true
 });
 
