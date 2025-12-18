@@ -564,7 +564,14 @@ app.get("/penduduk_tembeng/keluarga", (req, res) => {
     `;
 
     db.query(query, (err, result) => {
-        if (err) throw err;
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "Query error",
+                error: err.message
+            });
+        }
+
         res.json({ hasil: result, jumlah: result.length });
     });
 });
