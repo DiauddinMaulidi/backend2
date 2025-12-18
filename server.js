@@ -546,20 +546,25 @@ app.get("/penduduk_tembeng/dusun/jumlah", (req, res) => {
 app.get("/penduduk_tembeng/keluarga", async (req, res) => {
     try {
         const [result] = await promiseConn.query(`
-      SELECT
-          p1.id,
-          p1.NOMOR_KK,
-          p1.NAMA_LENGKAP AS kepala_keluarga,
-          p1.KEDUDUKAN_DALAM_KELUARGA,
-          p1.NIK,
-          p1.JENIS_KELAMIN,
-          p1.ALAMAT_LENGKAP,
-          COUNT(p2.id) AS jumlah_anggota
-      FROM penduduk_tembeng p1
-      JOIN penduduk_tembeng p2 ON p1.NOMOR_KK = p2.NOMOR_KK
-      WHERE p1.KEDUDUKAN_DALAM_KELUARGA = 'KEPALA KELUARGA'
-      GROUP BY p1.id
-      ORDER BY p1.NOMOR_KK ASC
+      SELECT ROW_NUMBER() OVER (ORDER BY NOMOR_KK) AS no,
+             id, NOMOR_KK, NAMA_LENGKAP, KEDUDUKAN_DALAM_KELUARGA,
+             NIK, JENIS_KELAMIN, ALAMAT_LENGKAP, jumlah_anggota
+      FROM (
+          SELECT *,
+              ROW_NUMBER() OVER(
+                  PARTITION BY NOMOR_KK
+                  ORDER BY
+                      CASE
+                          WHEN KEDUDUKAN_DALAM_KELUARGA = 'KEPALA KELUARGA' THEN 1
+                          WHEN KEDUDUKAN_DALAM_KELUARGA = 'ISTRI' THEN 2
+                          ELSE 3
+                      END
+              ) AS rn,
+              COUNT(*) OVER (PARTITION BY NOMOR_KK) AS jumlah_anggota
+          FROM penduduk_tembeng
+      ) merged
+      WHERE rn = 1
+      ORDER BY NOMOR_KK ASC
     `);
 
         res.json({ hasil: result, jumlah: result.length });
@@ -568,38 +573,6 @@ app.get("/penduduk_tembeng/keluarga", async (req, res) => {
         res.status(500).json({ message: "Query error", error: err.message });
     }
 });
-
-
-// app.get("/penduduk_tembeng/keluarga", async (req, res) => {
-//     try {
-//         const [result] = await promiseConn.query(`
-//       SELECT ROW_NUMBER() OVER (ORDER BY NOMOR_KK) AS no,
-//              id, NOMOR_KK, NAMA_LENGKAP, KEDUDUKAN_DALAM_KELUARGA,
-//              NIK, JENIS_KELAMIN, ALAMAT_LENGKAP, jumlah_anggota
-//       FROM (
-//           SELECT *,
-//               ROW_NUMBER() OVER(
-//                   PARTITION BY NOMOR_KK
-//                   ORDER BY
-//                       CASE
-//                           WHEN KEDUDUKAN_DALAM_KELUARGA = 'KEPALA KELUARGA' THEN 1
-//                           WHEN KEDUDUKAN_DALAM_KELUARGA = 'ISTRI' THEN 2
-//                           ELSE 3
-//                       END
-//               ) AS rn,
-//               COUNT(*) OVER (PARTITION BY NOMOR_KK) AS jumlah_anggota
-//           FROM penduduk_tembeng
-//       ) merged
-//       WHERE rn = 1
-//       ORDER BY NOMOR_KK ASC
-//     `);
-
-//         res.json({ hasil: result, jumlah: result.length });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Query error", error: err.message });
-//     }
-// });
 
 
 app.get("/penduduk_tembeng/keluarga/detail/:id", (req, res) => {
