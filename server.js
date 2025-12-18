@@ -45,11 +45,14 @@ const upload = multer({ storage });
 
 
 // === MYSQL CONNECTION ===
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: "sql12.freesqldatabase.com",
     user: "sql12812219",
     password: "4LcmJ9iTSF",
     database: "sql12812219",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
     dateStrings: true
 });
 
